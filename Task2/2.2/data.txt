@@ -1,0 +1,35 @@
+﻿CPU (lscpu):
+Model name:           Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz
+Thread(s) per core: 2
+Core(s) per socket: 20
+CPU max MHz:        3900.0000
+CPU min MHz:        1000.0000
+
+
+Наименование сервера 
+ProLiant XL270d Gen10
+
+
+NUMA
+available: 2 nodes (0-1)
+node 0 cpus: 0-19, 40-59 
+node 0 size: 385636 MB
+node 0 free: 27997 MB
+node 1 cpus: 20 - 39, 60 - 79
+node 1 size: 387008 MB
+node 1 free: 138067 MB
+
+
+Операционная система
+PRETTY_NAME="Ubuntu 22.04.3 LTS"
+NAME="Ubuntu"
+VERSION_ID="22.04"
+VERSION="22.04.3 LTS (Jammy Jellyfish)"
+VERSION_CODENAME=jammy
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=jammy
