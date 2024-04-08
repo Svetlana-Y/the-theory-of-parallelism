@@ -4,7 +4,7 @@
 #include <omp.h>
 #define count_of_threads 2
 
-const double PI = 3.14159265358979323846;
+const double PI = 3.1415926;
 const double a = -4.0;
 const double b = 4.0;
 const int nsteps = 40000000;
