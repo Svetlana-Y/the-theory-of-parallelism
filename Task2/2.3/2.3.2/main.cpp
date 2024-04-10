@@ -1,7 +1,6 @@
 #include <iostream>
 #include <omp.h>
 #include <fstream>
-#include <cmath>
 #include <chrono>
 
 #define SIZE 13000
@@ -17,24 +16,26 @@ double cpuSecond()
 }
 
 void initialization(double* A, double* b, double* x) {
-		for (int i = 0; i < SIZE; i++) {
-			for (int j = 0; j < SIZE; j++) {
-				if (i != j) A[i * SIZE + j] = 1.0;
-				else A[i * SIZE + j] = 2.0;
-			}
-			x[i] = 0.0;
-			b[i] = SIZE + 1;
+	for (int i = 0; i < SIZE; i++) {
+		for (int j = 0; j < SIZE; j++) {
+			if (i != j) A[i * SIZE + j] = 1.0;
+			else A[i * SIZE + j] = 2.0;
 		}
+		x[i] = 0.0;
+		b[i] = SIZE + 1;
+	}
 }
 
 void reloadArray(double* x) {
 	std::fill_n(x, SIZE, 0);
 }
 
-double criteriaForTheMethodWithFor (double* A, double* b, double* x, int countOfThreads) {
+double criteriaForTheMethodWithoutFor(double* A, double* b, double* x, int countOfThreads) {
+
+	#pragma omp single 
 	double commonSumNumerator = 0, commonSumDenominator = 0;
 
-	#pragma omp parallel for num_threads(countOfThreads)
+	#pragma omp for 
 		for (int i = 0; i < SIZE; i++) {
 			double sumNumerator = 0, sumDenominator = 0;
 			for (int j = 0; j < SIZE; j++) {
@@ -42,29 +43,31 @@ double criteriaForTheMethodWithFor (double* A, double* b, double* x, int countOf
 			}
 			sumNumerator = (sumNumerator - b[i]) * (sumNumerator - b[i]);
 
-			#pragma omp atomic
+	#pragma omp atomic
 			commonSumNumerator += sumNumerator;
 			commonSumDenominator += (b[i] * b[i]);
 		}
-	return commonSumNumerator / commonSumDenominator;
+		return commonSumNumerator / commonSumDenominator;
 }
 
-void methodWithFor(double* A, double* b, double* x, int countOfThreads) {
+void methodWithoutFor(double* A, double* b, double* x, int countOfThreads) {
 
 	double* newX = new double[SIZE] {};
 
-	while (criteriaForTheMethodWithFor(A,b,x, countOfThreads) > e) {
-	#pragma omp parallel for num_threads(countOfThreads)
-		for (int i = 0; i < SIZE; i++) {
-			double sum = 0;
-			for (int j = 0; j < SIZE; j++) {
-				sum += A[i*SIZE +j] * x[j];
+	#pragma omp parallel 
+	while (criteriaForTheMethodWithoutFor(A, b, x, countOfThreads) > e) {
+		
+		#pragma omp for 
+			for (int i = 0; i < SIZE; i++) {
+				double sum = 0;
+				for (int j = 0; j < SIZE; j++) {
+					sum += A[i * SIZE + j] * x[j];
+				}
+				newX[i] = t * (sum - b[i]);
 			}
-			newX[i] = t * (sum - b[i]);
-		}
-	#pragma omp parallel for num_threads(countOfThreads)
-		for (int i = 0; i < SIZE; i++)
-			x[i] -= newX[i];
+		#pragma omp for 
+			for (int i = 0; i < SIZE; i++)
+				x[i] -= newX[i];
 	}
 
 }
@@ -76,12 +79,12 @@ void iterativeAlgorithm(double* A, double* b, double* x) {
 	double timeForFirstThread;
 	double S;
 
-	std::ofstream output;         
-	output.open("dataFile.txt");      
-	if (output.is_open()) {	
+	std::ofstream output;
+	output.open("dataFile.txt");
+	if (output.is_open()) {
 		for (int countOfThreads = 0; countOfThreads < MAXOFTHREADS; countOfThreads++) {
 			double time = cpuSecond();
-			methodWithFor(A, b ,x, countOfThreads+1);
+			methodWithoutFor(A, b, x, countOfThreads + 1);
 			time = cpuSecond() - time;
 			if (countOfThreads == 0) {
 				timeForFirstThread = time;
